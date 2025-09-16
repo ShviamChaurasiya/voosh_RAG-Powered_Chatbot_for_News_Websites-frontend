@@ -11,7 +11,7 @@ const HeroSection = ({ onBookDemoClick }) => {
   // State for the animated text in the hero section title
   const [animatedText, setAnimatedText] = useState('');
   // Array of words to be animated by the typewriter effect
-  const words = ["understanding", "discovery", "insights", "support"];
+  const words = ["understand  ", "discovery  ", "insights  ", "support  "];
   // Refs to manage the state of the typewriter effect across renders
   const wordIndexRef = useRef(0);
   const charIndexRef = useRef(0);
@@ -38,13 +38,13 @@ const HeroSection = ({ onBookDemoClick }) => {
       // Check if typing is complete for the current word
       if (!isDeletingRef.current && charIndexRef.current === currentWord.length) {
         // Pause after typing a word, then start deleting
-        delayRef.current = 1000; // Longer delay before deleting
+        delayRef.current = 75; // Longer delay before deleting
         isDeletingRef.current = true;
       } else if (isDeletingRef.current && charIndexRef.current === 0) {
         // If deleting is complete, move to the next word and start typing
         isDeletingRef.current = false;
         wordIndexRef.current = (wordIndexRef.current + 1) % words.length; // Cycle through words
-        delayRef.current = 200; // Shorter delay before typing next word
+        delayRef.current = 100; // Shorter delay before typing next word
       }
 
       // Schedule the next step of the typewriter effect
@@ -111,7 +111,7 @@ const HeroSection = ({ onBookDemoClick }) => {
         <h1>
           <span className="line-one">Automate news&nbsp;</span>
           {/* Animated text for the typewriter effect */}
-          <span className="animated-text-line">&nbsp; {animatedText}</span>
+          <span className="animated-text-line">&nbsp;{animatedText}&nbsp;</span>
           <span className="line-three"> in minutes.</span>
         </h1>
         <p>Enhance reader engagement, provide instant summaries, and answer questions across your news content, articles, and archives.</p>
