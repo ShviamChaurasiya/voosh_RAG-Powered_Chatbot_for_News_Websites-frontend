@@ -10,7 +10,7 @@ This project is the frontend for the Voosh Chatbot, a RAG (Retrieval-Augmented G
 *   **Conversation History:** Easily review past interactions within the current chat session.
 *   **Session Management:**
     *   **Automatic Session Creation:** A new chat session is automatically initiated upon the first load.
-    *   **Session Persistence:** Session IDs and conversation history are persistently stored using `localStorage` for continuity.
+    *   **Session Persistence:** Session IDs and conversation history are persistently stored using `sessionStorage` for continuity.
     *   **Session Reset:** Option to clear the current chat history and start a fresh session.
 *   **Typing Indicator:** Provides visual feedback to the user when the chatbot is processing a response.
 *   **Responsive Design:** The layout and styling dynamically adapt to provide an optimal viewing and interaction experience on desktop, tablet, and mobile devices.

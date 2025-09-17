@@ -38,6 +38,40 @@ body {
   background-repeat: no-repeat;
 }
 
+.waiting-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .redirect-now-btn {
+    background-color: variables.$primary-color;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: color.adjust(variables.$primary-color, $lightness: -10%);
+    }
+
+    &:disabled {
+      background-color: color.adjust(variables.$primary-color, $lightness: -20%);
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
 // Removed .overlay styles
 
 .header { // This is the main site header

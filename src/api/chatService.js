@@ -14,7 +14,7 @@ const api = axios.create({
  * @returns {Promise<string>} A promise that resolves to the new session ID.
  */
 export const getNewSessionId = async () => {
-  const response = await api.get('/session/new');
+  const response = await api.get('/api/session/new');
   return response.data.sessionId;
 };
 
@@ -25,7 +25,7 @@ export const getNewSessionId = async () => {
  * @returns {Promise<object>} A promise that resolves to the bot's response data.
  */
 export const postMessage = async (sessionId, message) => {
-  const response = await api.post('/chat', { sessionId, message });
+  const response = await api.post('/api/chat', { sessionId, message });
   return response.data;
 };
 
@@ -35,7 +35,7 @@ export const postMessage = async (sessionId, message) => {
  * @returns {Promise<Array<object>>} A promise that resolves to an array of message objects.
  */
 export const getSessionHistory = async (sessionId) => {
-  const response = await api.get(`/history/${sessionId}`);
+  const response = await api.get(`/api/history/${sessionId}`);
   return response.data;
 };
 
@@ -45,6 +45,6 @@ export const getSessionHistory = async (sessionId) => {
  * @returns {Promise<object>} A promise that resolves to the response data from the clear operation.
  */
 export const clearSessionHistory = async (sessionId) => {
-  const response = await api.post('/session/clear', { sessionId });
+  const response = await api.post('/api/session/clear', { sessionId });
   return response.data;
 };

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 /**
  * ChatWindow component displays the list of messages in the chat.
@@ -27,7 +28,7 @@ const ChatWindow = ({ messages }) => {
       {/* Map through messages and render each one */}
       {messages.map((msg, index) => (
         <div key={index} className={`message ${msg.sender}-message`}>
-          <p>{msg.text}</p>
+          <ReactMarkdown>{msg.text}</ReactMarkdown>
         </div>
       ))}
       {/* Empty div at the end of messages to scroll into view */}
