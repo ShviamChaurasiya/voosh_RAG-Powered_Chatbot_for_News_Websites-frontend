@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use './variables';
 
 .session-history {
@@ -20,13 +21,14 @@
     transition: background-color 0.3s ease;
 
     &:hover {
-      background-color: darken(variables.$primary-color, 10%);
+      background-color: color.adjust(variables.$primary-color, $lightness: -10%);
     }
   }
 
   .session-list {
     flex-grow: 1;
     overflow-y: auto; // Scroll for many sessions
+    padding: 0 1rem;
 
     .session-item {
       display: flex;
@@ -74,5 +76,14 @@
         }
       }
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .session-history {
+    width: 100%;
+    margin: 0 auto;
+    border-right: none;
+    padding: 1rem 0;
   }
 }

@@ -433,13 +433,14 @@ body {
   max-height: 800px; // Max height for desktop
   background: rgba(variables.$dark-blue-gray, 0.95);
   border-radius: 10px;
-  overflow: hidden;
+  overflow: auto;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 
   @media (max-width: 768px) {
     flex-direction: column; // Stack vertically on small screens
-    width: 95%;
-    height: 95%;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
   }
 }
 
@@ -455,7 +456,9 @@ body {
   @media (max-width: 768px) {
     width: 100%; // Take full width when stacked
     max-width: 100%; // No max-width when stacked
-    height: auto; // Adjust height automatically
+    height: 100%;
+    // flex-grow: 1;
+    // overflow-y: auto;
   }
 }
 
