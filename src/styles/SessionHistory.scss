@@ -1,0 +1,78 @@
+@use './variables';
+
+.session-history {
+  width: 250px; // Fixed width for the sidebar
+  background-color: variables.$dark-blue-gray; // Dark background for the sidebar
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.1); // Separator from chat window
+
+  .new-chat-button {
+    background-color: variables.$primary-color;
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: darken(variables.$primary-color, 10%);
+    }
+  }
+
+  .session-list {
+    flex-grow: 1;
+    overflow-y: auto; // Scroll for many sessions
+
+    .session-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0.5rem;
+      margin-bottom: 0.5rem;
+      background-color: rgba(255, 255, 255, 0.05); // Subtle background for items
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      &.active {
+        background-color: variables.$soft-orange; // Highlight active session
+        color: variables.$dark-blue-gray; // Darker text for active session
+
+        .session-preview {
+          font-weight: bold;
+        }
+      }
+
+      .session-preview {
+        flex-grow: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: white;
+      }
+
+      .delete-session-button {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.6); // Lighter color for delete icon
+        cursor: pointer;
+        font-size: 1rem;
+        margin-left: 0.5rem;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: red; // Red on hover for delete
+        }
+      }
+    }
+  }
+}

@@ -378,6 +378,17 @@ body {
       width: 90%;
     }
   }
+
+  // Chatbot container for small screens
+  .chatbot-container {
+    flex-direction: column; // Stack vertically on small screens
+    width: 95%;
+    height: 95%;
+  }
+
+  .chat-main-content {
+    width: 100%; // Take full width when stacked
+  }
 }
 
 @media (max-width: 480px) {
@@ -415,9 +426,9 @@ body {
 
 .chatbot-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; // Two columns for desktop
   width: 90%; // Take up most of the width
-  max-width: 600px; // Max width for desktop
+  max-width: 900px; // Increased max-width to accommodate sidebar
   height: 90%; // Take up most of the height
   max-height: 800px; // Max height for desktop
   background: rgba(variables.$dark-blue-gray, 0.95);
@@ -426,8 +437,25 @@ body {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 
   @media (max-width: 768px) {
+    flex-direction: column; // Stack vertically on small screens
     width: 95%;
     height: 95%;
+  }
+}
+
+.chat-main-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; // Take up remaining space
+  width: calc(100% - 250px); // Adjust for sidebar width
+  max-width: 650px; // Max width for the chat content itself
+  height: 100%; // Take full height of container
+  background: rgba(variables.$dark-blue-gray, 0.95); // Ensure background for chat content
+
+  @media (max-width: 768px) {
+    width: 100%; // Take full width when stacked
+    max-width: 100%; // No max-width when stacked
+    height: auto; // Adjust height automatically
   }
 }
 

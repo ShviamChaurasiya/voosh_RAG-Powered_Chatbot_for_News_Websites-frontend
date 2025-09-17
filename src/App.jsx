@@ -1,5 +1,6 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid'; // For generating unique session IDs
 import WaitingPage from './components/WaitingPage';
 import HeroSection from './components/HeroSection';
 import ChatbotOverlay from './components/ChatbotOverlay';
@@ -11,60 +12,138 @@ import './styles/App.scss';
  * Manages chat state, session, message handling, and UI components.
  */
 function App() {
+  const navigate = useNavigate();
   const [messages, setMessages] = React.useState([]);
-  const [sessionId, setSessionId] = React.useState(null);
+  const [sessionList, setSessionList] = React.useState([]); // Stores [{ id, preview }]
+  const [activeSessionId, setActiveSessionId] = React.useState(null);
   const [isTyping, setIsTyping] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
 
+  // Effect to initialize sessions from localStorage
   React.useEffect(() => {
-    const initializeSession = async () => {
-      let currentSessionId = sessionStorage.getItem('sessionId');
-      if (!currentSessionId) {
+    const initializeSessions = async () => {
+      const storedSessions = JSON.parse(localStorage.getItem('sessionList')) || [];
+
+      if (storedSessions.length > 0) {
+        setSessionList(storedSessions);
+        const initialActiveSessionId = storedSessions[0].id;
+        setActiveSessionId(initialActiveSessionId);
         try {
-          currentSessionId = await chatService.getNewSessionId();
-          sessionStorage.setItem('sessionId', currentSessionId);
-        } catch (error) {
-          console.error("Failed to get new session ID:", error);
-        }
-      } else {
-        try {
-          const history = await chatService.getSessionHistory(currentSessionId);
+          const history = await chatService.getSessionHistory(initialActiveSessionId);
           setMessages(history);
         } catch (error) {
-          console.error("Failed to get session history:", error);
+          console.error("Failed to get session history for initial session:", error);
+          setMessages([]); // Clear messages if history fetch fails
         }
+      } else {
+        // No sessions found, create a new one
+        await handleNewChat(false); // Create new chat without clearing existing messages
       }
-      setSessionId(currentSessionId);
     };
 
-    initializeSession();
-  }, []);
+    initializeSessions();
+  }, []); // Run only once on component mount
+
+  // Effect to fetch messages when activeSessionId changes
+  React.useEffect(() => {
+    const fetchActiveSessionHistory = async () => {
+      if (activeSessionId) {
+        try {
+          const history = await chatService.getSessionHistory(activeSessionId);
+          setMessages(history);
+        } catch (error) {
+          console.error(`Failed to get session history for ${activeSessionId}:`, error);
+          setMessages([]); // Clear messages if history fetch fails
+        }
+      } else {
+        setMessages([]); // Clear messages if no active session
+      }
+    };
+
+    fetchActiveSessionHistory();
+  }, [activeSessionId]);
+
+  // Function to create a new chat session
+  const handleNewChat = async (shouldClearMessages = true) => {
+    try {
+      const newSessionId = await chatService.getNewSessionId();
+      const newSession = { id: newSessionId, preview: "New Chat" };
+
+      setSessionList(prev => {
+        const updatedList = [newSession, ...prev];
+        localStorage.setItem('sessionList', JSON.stringify(updatedList));
+        return updatedList;
+      });
+      setActiveSessionId(newSessionId);
+      if (shouldClearMessages) {
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error("Failed to create new session:", error);
+    }
+  };
+
+  // Function to resume an existing chat session
+  const handleResumeSession = async (id) => {
+    if (id === activeSessionId) return; // Already active
+    setActiveSessionId(id);
+    // Messages will be fetched by the useEffect hook when activeSessionId changes
+  };
+
+  // Function to delete a chat session
+  const handleDeleteSession = async (idToDelete) => {
+    try {
+      await chatService.clearSessionHistory(idToDelete); // Clear backend history
+
+      setSessionList(prev => {
+        const updatedList = prev.filter(session => session.id !== idToDelete);
+        localStorage.setItem('sessionList', JSON.stringify(updatedList));
+        return updatedList;
+      });
+
+      if (idToDelete === activeSessionId) {
+        // If the active session was deleted, switch to another or create new
+        const updatedSessionList = JSON.parse(localStorage.getItem('sessionList')) || [];
+        if (updatedSessionList.length > 0) {
+          setActiveSessionId(updatedSessionList[0].id);
+        } else {
+          await handleNewChat(); // Create a new session if list is empty
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to delete session ${idToDelete}:`, error);
+    }
+  };
 
   const handleSendMessage = async (inputText) => {
-    setMessages((prev) => [...prev, { sender: 'user', text: inputText }]);
+    if (!activeSessionId) {
+      console.error("No active session to send message.");
+      return;
+    }
+
+    const userMessage = { sender: 'user', text: inputText };
+    setMessages((prev) => [...prev, userMessage]);
     setIsTyping(true);
 
+    // Update session preview if it's still "New Chat"
+    setSessionList(prev => {
+      const updatedList = prev.map(session =>
+        session.id === activeSessionId && session.preview === "New Chat"
+          ? { ...session, preview: inputText }
+          : session
+      );
+      localStorage.setItem('sessionList', JSON.stringify(updatedList));
+      return updatedList;
+    });
+
     try {
-      const response = await chatService.postMessage(sessionId, inputText);
+      const response = await chatService.postMessage(activeSessionId, inputText);
       setMessages((prev) => [...prev, { sender: 'bot', text: response.response }]);
     } catch (error) {
       console.error("Failed to send message:", error);
       setMessages((prev) => [...prev, { sender: 'bot', text: "Error: Could not get a response. Please try again." }]);
     } finally {
       setIsTyping(false);
-    }
-  };
-
-  const handleResetSession = async () => {
-    try {
-      await chatService.clearSessionHistory(sessionId);
-      setMessages([]);
-      sessionStorage.removeItem('sessionId');
-      const newSessionId = await chatService.getNewSessionId();
-      setSessionId(newSessionId);
-      sessionStorage.setItem('sessionId', newSessionId);
-    } catch (error) {
-      console.error("Failed to reset session:", error);
     }
   };
 
@@ -77,7 +156,12 @@ function App() {
         messages={messages}
         isTyping={isTyping}
         onSendMessage={handleSendMessage}
-        onReset={handleResetSession}
+        // Pass multi-session props
+        sessionList={sessionList}
+        activeSessionId={activeSessionId}
+        onNewChat={handleNewChat}
+        onResumeSession={handleResumeSession}
+        onDeleteSession={handleDeleteSession}
       />
     </div>
   );
